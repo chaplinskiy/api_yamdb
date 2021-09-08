@@ -1,7 +1,3 @@
-# api_yamdb
-api_yamdb
-
-
 # chaplinskiy/api_yamdb
 
 ## Описание:

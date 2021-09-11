@@ -52,7 +52,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ('name', 'slug')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -73,22 +74,33 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ('name', 'slug')
+
+
+# class GenreTit
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    # genre name + genre slug
-    genre = serializers.StringRelatedField(many=True)
-    # category name + category slug
-    category = serializers.StringRelatedField()
-    # category = serializers.ReadOnlyField()
-    # tracks = serializers.StringRelatedField(many=True)
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, read_only=True)
     rating = serializers.FloatField(max_value=10, min_value=1)
 
     class Meta:
         model = Title
         fields = '__all__'
-        # fields = ('category', 'genre', 'name', 'rating')
+
+
+class TitleSerializerCreateUpdate(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Category.objects.all(), required=False)
+    genre = serializers.SlugRelatedField(
+        slug_field='slug', queryset=Genre.objects.all(), many=True,
+        required=False)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):

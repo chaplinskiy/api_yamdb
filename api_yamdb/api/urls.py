@@ -7,10 +7,10 @@ from . import views
 app_name = 'api'
 
 router = DefaultRouter()
-router.register('users', views.UserViewSet)
-router.register('categories', views.CategoryViewSet)
-router.register('genres', views.GenreViewSet)
-router.register('titles', views.TitleViewSet, basename='titles')
+router.register(r'users', views.UserViewSet, basename='users')
+router.register(r'categories', views.CategoryViewSet, basename='categories')
+router.register(r'genres', views.GenreViewSet, basename='genres')
+router.register(r'titles', views.TitleViewSet, basename='titles')
 router.register(
     r'^titles/(?P<title_id>\d+)/reviews',
     views.ReviewViewSet,

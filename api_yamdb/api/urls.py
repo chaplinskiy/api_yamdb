@@ -27,9 +27,9 @@ router.register(
 
 
 urlpatterns = [
-    path('auth/signup/', views.signup, name='get_tokens_for_user'),
+    path('v1/auth/signup/', views.signup, name='get_tokens_for_user'),
     path(
-        'auth/token/',
+        'v1/auth/token/',
         views.get_token,
         name='generate_confirmation_code',
     ),

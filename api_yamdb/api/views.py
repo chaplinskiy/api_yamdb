@@ -13,7 +13,6 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .permissions import (
     IsAdminRole,
 )
-
 from .serializers import (
     UserForAdminSerializer, UserSerializer, EmailSerializer,
     ConfirmationSerializer,
@@ -30,15 +29,18 @@ def signup(request):
     email = serializer_data.data.get('email')
     username = serializer_data.data.get('username')
     if username == 'me':
-        return Response('неверное имя пользователя',
-                        status=status.HTTP_400_BAD_REQUEST)
-    user, create = User.objects.get_or_create(email=email, username=username,
-                                              is_active=False)
+        return Response(
+            'Недоступное имя', status=status.HTTP_400_BAD_REQUEST
+        )
+    user, create = User.objects.get_or_create(
+        email=email, username=username, is_active=False
+    )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         'Код проверки почты',
         f'Ваш код подтверждения: {confirmation_code}',
-        settings.DEFAULT_FROM_EMAIL, [email])
+        settings.DEFAULT_FROM_EMAIL, [email]
+    )
     return Response({'email': email, 'username': username})
 
 
@@ -54,8 +56,9 @@ def get_token(request):
         user.save()
         token = AccessToken.for_user(user)
         return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
-    return Response('Неверный код подтверждения',
-                    status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+        'Неверный код подтверждения', status=status.HTTP_400_BAD_REQUEST
+    )
 
 
 class UserViewSet(viewsets.ModelViewSet):

@@ -17,7 +17,8 @@ class YamUser(AbstractUser):
     email = models.EmailField(unique=True)
     bio = models.TextField(blank=True)
     role = models.CharField(
-        max_length=9, choices=UserRoles.choices, default=UserRoles.USER)
+        max_length=9, choices=UserRoles.choices, default=UserRoles.USER
+    )
 
     class Meta:
         ordering = ['id']

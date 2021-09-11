@@ -1,8 +1,9 @@
+# from api_yamdb.api.filtersets import TitleFilter
 from django.contrib.auth import get_user_model
 # from django.db.models import fields
+# from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-# from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 
 from reviews.models import Category, Comment, Genre, Title, Review
 
@@ -109,8 +110,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         default=serializers.CurrentUserDefault()
     )
+    title = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='name',
+        default=serializers.CharField()
+    )
 
     class Meta:
         model = Review
-        # fields = '__all__'
-        exclude = ['title']
+        fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('title', 'author')
+            )
+        ]

@@ -41,8 +41,8 @@ class Title(models.Model):
         Genre, related_name='titles', blank=True
     )
 
-    class Meta:
-        ordering = ['name']
+    # class Meta:
+        # ordering = ['name']
 
     def __str__(self):
         return self.name

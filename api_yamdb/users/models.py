@@ -21,3 +21,4 @@ class YamUser(AbstractUser):
 
     class Meta:
         ordering = ['id']
+        db_table = 'users'

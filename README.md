@@ -1,8 +1,12 @@
 # chaplinskiy/api_yamdb
 
+feat. **[kekoslav42](https://github.com/kekoslav42)** & **[Seva138](https://github.com/Seva138)**
+
 ## Описание:
 
-Появится немного позже.
+Учебный командный проект 10го спринта факультета бэкенд-разработки [Яндекс.Практикума](https://praktikum.yandex.ru).
+
+API и всё такое.
 
 ## Как запустить проект:
 
@@ -46,4 +50,9 @@ cd api_yamdb/ && python3 manage.py migrate
 
 ```bash
 python3 manage.py runserver
+```
+### Документация API с примерами:
+
+```json
+/redoc/
 ```

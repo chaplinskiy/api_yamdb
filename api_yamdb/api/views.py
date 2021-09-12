@@ -155,9 +155,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
             raise ValidationError('Оценка повторно не ставится.')
         serializer.save(author=self.request.user, title=title)
 
-    def perform_update(self, serializer):
-        serializer.save()
-        title = get_object_or_404(Title, id=self.kwargs["title_id"])
-        avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
-        title.rating = avg_score['score__avg']
-        title.save()
+    # def perform_update(self, serializer):
+    #     serializer.save()
+    #     title = get_object_or_404(Title, id=self.kwargs["title_id"])
+    #     avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
+    #     title.rating = avg_score['score__avg']
+    #     title.save()

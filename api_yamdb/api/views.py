@@ -41,12 +41,8 @@ User = get_user_model()
 def signup(request):
     serializer_data = EmailSerializer(data=request.data)
     serializer_data.is_valid(raise_exception=True)
-    email = serializer_data.data.get('email')
-    username = serializer_data.data.get('username')
-    if username == 'me':
-        return Response(
-            'Недопустимое имя ', status=status.HTTP_400_BAD_REQUEST
-        )
+    email = serializer_data.validated_data.get('email')
+    username = serializer_data.validated_data.get('username')
     user, create = User.objects.get_or_create(
         email=email, username=username, is_active=False
     )
@@ -62,8 +58,8 @@ def signup(request):
 def get_token(request):
     serializer_data = ConfirmationSerializer(data=request.data)
     serializer_data.is_valid(raise_exception=True)
-    confirmation_code = serializer_data.data.get('confirmation_code')
-    username = serializer_data.data.get('username')
+    confirmation_code = serializer_data.validated_data.get('confirmation_code')
+    username = serializer_data.validated_data.get('username')
     user = get_object_or_404(User, username=username)
     if default_token_generator.check_token(user, confirmation_code):
         user.is_active = True

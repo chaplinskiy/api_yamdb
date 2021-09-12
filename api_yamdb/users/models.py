@@ -22,3 +22,7 @@ class YamUser(AbstractUser):
     class Meta:
         ordering = ['id']
         db_table = 'users'
+
+    @property
+    def is_admin(self):
+        return self.is_superuser or self.role == UserRoles.ADMIN

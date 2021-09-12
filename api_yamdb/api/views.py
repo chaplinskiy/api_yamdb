@@ -6,12 +6,13 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import api_view, action
+from rest_framework.serializers import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .filtersets import TitleFilter
-
+from .viewsets import ListCreateDestroyViewSet
 from .permissions import (
     IsAdminOrReadOnly,
     IsAdminRole,
@@ -33,7 +34,6 @@ from .serializers import (
 
 from reviews.models import Category, Genre, Title, Review
 
-
 User = get_user_model()
 
 
@@ -44,10 +44,12 @@ def signup(request):
     email = serializer_data.data.get('email')
     username = serializer_data.data.get('username')
     if username == 'me':
-        return Response('неверное имя пользователя',
-                        status=status.HTTP_400_BAD_REQUEST)
-    user, create = User.objects.get_or_create(email=email, username=username,
-                                              is_active=False)
+        return Response(
+            'Недопустимое имя ', status=status.HTTP_400_BAD_REQUEST
+        )
+    user, create = User.objects.get_or_create(
+        email=email, username=username, is_active=False
+    )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         'Код проверки почты',
@@ -68,8 +70,9 @@ def get_token(request):
         user.save()
         token = AccessToken.for_user(user)
         return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
-    return Response('Неверный код подтверждения',
-                    status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+        'Неверный код подтверждения', status=status.HTTP_400_BAD_REQUEST
+    )
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -98,18 +101,14 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CategoryViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
+class CategoryViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    lookup_field = 'slug'
-    filter_backends = [filters.SearchFilter]
-    search_fields = ('name',)
+
+
+class GenreViewSet(ListCreateDestroyViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -125,33 +124,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         return serializer.save(author=self.request.user, review=review)
 
 
-class GenreViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-    permission_classes = (IsAdminOrReadOnly,)
-    lookup_field = 'slug'
-    filter_backends = [filters.SearchFilter]
-    search_fields = ('name',)
-
-
-class ReviewViewSet(viewsets.ModelViewSet):
-    serializer_class = ReviewSerializer
-    permission_classes = (IsStaffOrOwnerOrReadOnly,)
-
-    def get_queryset(self):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        return title.reviews.all()
-
-    def perform_create(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        return serializer.save(author=self.request.user, title=title)
-
-
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().annotate(
         rating=Avg('reviews__score')
@@ -165,3 +137,27 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'partial_update', 'destroy']:
             return TitleSerializerCreateUpdate
         return TitleSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsStaffOrOwnerOrReadOnly]
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return Review.objects.filter(title=title)
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs.get("title_id"))
+        if Review.objects.filter(
+                author=self.request.user, title=title
+        ).exists():
+            raise ValidationError('Оценка повторно не ставится.')
+        serializer.save(author=self.request.user, title=title)
+
+    def perform_update(self, serializer):
+        serializer.save()
+        title = get_object_or_404(Title, id=self.kwargs["title_id"])
+        avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
+        title.rating = avg_score['score__avg']
+        title.save()

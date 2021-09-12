@@ -1,7 +1,4 @@
-# from api_yamdb.api.filtersets import TitleFilter
 from django.contrib.auth import get_user_model
-# from django.db.models import fields
-# from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 
@@ -66,8 +63,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        # fields = '__all__'
-        # fields = ('text', 'author')
         exclude = ['review']
 
 
@@ -75,7 +70,6 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        # fields = '__all__'
         fields = ('name', 'slug')
 
 

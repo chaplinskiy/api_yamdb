@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, mixins, status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, action
 from rest_framework.serializers import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -12,13 +12,11 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
 from .filtersets import TitleFilter
-from .viewsets import ListCreateDestroyViewSet
 from .permissions import (
     IsAdminOrReadOnly,
     IsAdminRole,
     IsStaffOrOwnerOrReadOnly,
 )
-
 from .serializers import (
     CategorySerializer,
     CommentSerializer,
@@ -31,8 +29,8 @@ from .serializers import (
     UserForAdminSerializer,
     UserSerializer,
 )
-
 from reviews.models import Category, Genre, Title, Review
+from .viewsets import ListCreateDestroyViewSet
 
 User = get_user_model()
 
@@ -155,9 +153,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
             raise ValidationError('Оценка повторно не ставится.')
         serializer.save(author=self.request.user, title=title)
 
-    # def perform_update(self, serializer):
-    #     serializer.save()
-    #     title = get_object_or_404(Title, id=self.kwargs["title_id"])
-    #     avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
-    #     title.rating = avg_score['score__avg']
-    #     title.save()
+    def perform_update(self, serializer):
+        serializer.save()
+        title = get_object_or_404(Title, id=self.kwargs["title_id"])
+        avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
+        title.rating = avg_score['score__avg']
+        title.save()

@@ -19,6 +19,14 @@ class EmailSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'username')
 
+    def validate_username(self, value):
+        user = value
+        if user == 'me':
+            raise serializers.ValidationError(
+                'Недопустимое имя'
+            )
+        return value
+
 
 class ConfirmationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)

@@ -14,14 +14,20 @@ class UserRoles:
 
 
 class YamUser(AbstractUser):
-    email = models.EmailField(unique=True)
-    bio = models.TextField(blank=True)
+    email = models.EmailField(verbose_name='email', unique=True)
+    bio = models.TextField(verbose_name='bio', blank=True)
     role = models.CharField(
-        max_length=9, choices=UserRoles.choices, default=UserRoles.USER)
+        max_length=9,
+        choices=UserRoles.choices,
+        default=UserRoles.USER,
+        verbose_name='role'
+    )
 
     class Meta:
         ordering = ['id']
         db_table = 'users'
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
 
     @property
     def is_admin(self):

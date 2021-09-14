@@ -63,13 +63,17 @@ class Title(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='reviews',
-        verbose_name='title'
+        Title, on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='title',
+        db_index=True
     )
     text = models.TextField()
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='reviews',
-        verbose_name='reviews'
+        User, on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='reviews',
+        db_index=True
     )
     score = models.PositiveSmallIntegerField(
         help_text='Оценка от 1 до 10',
@@ -82,6 +86,7 @@ class Review(models.Model):
     pub_date = models.DateTimeField(
         verbose_name='review date',
         auto_now_add=True,
+        db_index=True
     )
 
     class Meta:

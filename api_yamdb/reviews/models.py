@@ -81,7 +81,6 @@ class Review(models.Model):
     )
     pub_date = models.DateTimeField(
         verbose_name='review date',
-        # 'review date',
         auto_now_add=True,
     )
 
@@ -111,7 +110,6 @@ class Comment(models.Model):
     )
     pub_date = models.DateTimeField(
         verbose_name='comment date',
-        # 'comment date',
         auto_now_add=True,
     )
 

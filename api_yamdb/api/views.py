@@ -6,7 +6,6 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import api_view, action
-from rest_framework.serializers import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
@@ -143,15 +142,4 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get("title_id"))
-        # if Review.objects.filter(
-        #         author=self.request.user, title=title
-        # ).exists():
-        #     raise ValidationError('Оценка повторно не ставится.')
         serializer.save(author=self.request.user, title=title)
-
-    # def perform_update(self, serializer):
-    #     serializer.save()
-    #     title = get_object_or_404(Title, id=self.kwargs["title_id"])
-    #     avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
-    #     title.rating = avg_score['score__avg']
-    #     title.save()

@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
-from django.shortcuts import get_object_or_404
+from rest_framework.validators import UniqueValidator
 from reviews.models import Category, Comment, Genre, Title, Review
 
 User = get_user_model()
@@ -57,7 +56,6 @@ class UserSerializer(UserForAdminSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        # fields = ('name', 'slug')
         exclude = ['id']
 
 
@@ -76,7 +74,6 @@ class CommentSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        # fields = ('name', 'slug')
         exclude = ['id']
 
 

@@ -8,3 +8,7 @@ def year_validator(value):
     if value < 1 or value > year:
         raise ValidationError('Проверьте год!')
     return value
+
+
+def let_me_name_my_commit():
+    pass

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
-
+from django.shortcuts import get_object_or_404
 from reviews.models import Category, Comment, Genre, Title, Review
 
 User = get_user_model()
@@ -55,7 +55,6 @@ class UserSerializer(UserForAdminSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         # fields = ('name', 'slug')
@@ -75,7 +74,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Genre
         # fields = ('name', 'slug')
@@ -119,9 +117,14 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('title', 'author')
+
+    def validate(self, value):
+        request = self.context.get('request')
+        title_id = self.context.get('view').kwargs.get('title_id')
+        user = self.context.get('request').user
+        queryset = Review.objects.filter(author=user, title=title_id)
+        if queryset.exists():
+            raise serializers.ValidationError(
+                'Оценка повторно не ставится.'
             )
-        ]
+        return value

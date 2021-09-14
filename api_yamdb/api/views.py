@@ -143,10 +143,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs.get("title_id"))
-        if Review.objects.filter(
-                author=self.request.user, title=title
-        ).exists():
-            raise ValidationError('Оценка повторно не ставится.')
+        # if Review.objects.filter(
+        #         author=self.request.user, title=title
+        # ).exists():
+        #     raise ValidationError('Оценка повторно не ставится.')
         serializer.save(author=self.request.user, title=title)
 
     # def perform_update(self, serializer):

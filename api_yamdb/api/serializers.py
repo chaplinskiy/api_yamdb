@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+from rest_framework.validators import UniqueValidator, UniqueTogetherValidator
 from reviews.models import Category, Comment, Genre, Title, Review
 
 User = get_user_model()
@@ -99,6 +99,13 @@ class TitleSerializerCreateUpdate(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GetContextTitle():
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        return serializer_field.context.get('view').kwargs.get('title_id')
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True,
@@ -108,22 +115,17 @@ class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
         read_only=True,
         slug_field='name',
-        default=serializers.CharField()
+        default=GetContextTitle()
     )
 
     class Meta:
         model = Review
         fields = '__all__'
 
-    def validate(self, value):
-        request = self.context.get('request')
-        if request.method != 'POST':
-            return value
-        title_id = self.context.get('view').kwargs.get('title_id')
-        user = self.context.get('request').user
-        queryset = Review.objects.filter(author=user, title=title_id)
-        if queryset.exists():
-            raise serializers.ValidationError(
-                'Оценка повторно не ставится.'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Review.objects.all(),
+                fields=('author', 'title'),
+                message='UniqueTogetherMessage'
             )
-        return value
+        ]

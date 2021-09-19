@@ -112,11 +112,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         default=serializers.CurrentUserDefault()
     )
-    title = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='name',
-        default=GetContextTitle()
-    )
+    title = serializers.HiddenField(default=GetContextTitle())
 
     class Meta:
         model = Review
